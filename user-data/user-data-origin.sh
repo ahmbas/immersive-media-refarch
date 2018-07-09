@@ -68,6 +68,26 @@ chmod +x /usr/local/bin/record-postprocess.sh
 sed -i "s|us-east-1|$REGION|g" /etc/awslogs/awscli.conf
 sed -i "s|%CLOUDWATCHLOGSGROUP%|$CLOUDWATCHLOGSGROUP|g" /etc/awslogs/awslogs.conf
 
+# Proper nginx install
+cd /root/
+wget http://nginx.org/download/nginx-1.14.0.tar.gz
+tar -xzvf nginx-1.14.0.tar.gz
+wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
+tar -xzvf v1.2.1.tar.gz
+
+cd /root/nginx-1.14.0/
+./configure --conf-path=/etc/nginx/nginx.conf --with-file-aio --add-module=/root/nginx-rtmp-module-1.2.1 \
+--error-log-path=/var/log/nginx/error.log --http-client-body-temp-path=/var/lib/nginx/body \
+--http-fastcgi-temp-path=/var/lib/nginx/fastcgi --http-log-path=/var/log/nginx/access.log \
+--http-proxy-temp-path=/var/lib/nginx/proxy --lock-path=/var/lock/nginx.lock \
+--pid-path=/var/run/nginx.pid --with-http_ssl_module \
+--without-mail_pop3_module --without-mail_smtp_module \
+--without-mail_imap_module --without-http_uwsgi_module \
+--without-http_scgi_module --with-ipv6 --prefix=/usr
+
+make
+make install
+ 
 chkconfig rsyslog on && service rsyslog restart
 chkconfig awslogs on && service awslogs restart
 chkconfig nginx on && service nginx restart
